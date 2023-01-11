@@ -1,6 +1,6 @@
-FROM nginx:1.12-alpine
-MAINTAINER Hugo Garbez <hugo.garbez@gmail.com>
-ARG H5AI_VERSION=0.29.0
+FROM nginx:1.22-alpine
+LABEL maintainer="Benjamin Höglinger-Stelzer <nefarius@dhmx.at>"
+ARG H5AI_VERSION=0.30.0
 
 RUN apk add --no-cache openssl patch ffmpeg supervisor; \
     wget https://release.larsjung.de/h5ai/h5ai-${H5AI_VERSION}.zip -P /tmp; \
@@ -11,7 +11,10 @@ ADD class-setup.php.patch /tmp/class-setup.php.patch
 RUN patch -p1 -u -d /usr/share/h5ai/_h5ai/private/php/core/ -i /tmp/class-setup.php.patch; \
     rm -rf /tmp/*
 
-RUN apk add --no-cache php7-fpm \
+COPY ./repositories.txt /tmp/repositories.txt
+RUN cat /tmp/repositories.txt >> /etc/apk/repositories
+
+RUN apk add --update --no-cache php7-fpm \
                        php7-gd \
                        php7-exif \
                        php7-curl \
