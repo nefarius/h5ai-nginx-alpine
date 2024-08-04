@@ -8,6 +8,13 @@ Initially forked [from here](https://gitlab.com/Zaap59/h5ai-nginx-alpine/).
 - Adjusted build for changes of PHP 7 on Alpine
 - Added extra access log file for logging behind a reverse proxy
 
+## Building
+
+```bash
+docker build -t containinger/h5ai-nginx-alpine .
+docker push containinger/h5ai-nginx-alpine
+```
+
 ## Sources
 
 - [h5ai fork](https://github.com/nefarius/h5ai)
