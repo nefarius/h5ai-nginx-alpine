@@ -1,40 +1,50 @@
-FROM nginx:1.22-alpine
+# pull and build https://github.com/nefarius/h5ai
+FROM node:lts-slim AS builder
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /build
+
+RUN apt update && \
+    apt install git -y && \
+    git clone https://github.com/nefarius/h5ai.git
+WORKDIR /build/h5ai
+
+RUN npm install && \
+    npx --yes browserslist@latest --update-db && \
+    npm run build
+
+
+# build final image
+FROM trafex/php-nginx AS final
 LABEL maintainer="Benjamin Höglinger-Stelzer <nefarius@dhmx.at>"
-ARG H5AI_VERSION=0.30.0
+ARG H5AI_VERSION=0.32.0
 
-RUN apk add --no-cache openssl patch ffmpeg supervisor; \
-    wget https://release.larsjung.de/h5ai/h5ai-${H5AI_VERSION}.zip -P /tmp; \
-    mkdir -p /usr/share/h5ai /data; \
-    unzip /tmp/h5ai-${H5AI_VERSION}.zip -d /usr/share/h5ai
+# elevate permissions during image modification
+USER root
 
+RUN apk add --no-cache patch
+
+# copy built h5ai dist
+COPY --from=builder /build/h5ai/build/_h5ai/ /usr/share/h5ai/_h5ai/
+
+# apply patches
 ADD class-setup.php.patch /tmp/class-setup.php.patch
 RUN patch -p1 -u -d /usr/share/h5ai/_h5ai/private/php/core/ -i /tmp/class-setup.php.patch; \
     rm -rf /tmp/*
 
-COPY ./repositories.txt /tmp/repositories.txt
-RUN cat /tmp/repositories.txt >> /etc/apk/repositories
+#COPY php-fpm.conf /etc/php7/php-fpm.d/www.conf
+#COPY nginx.conf /etc/nginx/nginx.conf
+#COPY supervisord.conf /etc/supervisord.conf
 
-RUN apk add --update --no-cache php7-fpm \
-                       php7-gd \
-                       php7-exif \
-                       php7-curl \
-                       php7-iconv \
-                       php7-xml \
-                       php7-dom \
-                       php7-json \
-                       php7-zlib \
-                       php7-session; \
-                       rm -rf /var/cache/apk/*
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-RUN set -x; \
-    addgroup -g 82 -S www-data; \
-    adduser -u 82 -D -S -G www-data www-data
+USER nobody
 
-COPY php-fpm.conf /etc/php7/php-fpm.d/www.conf
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY supervisord.conf /etc/supervisord.conf
-
-EXPOSE 80
+EXPOSE 8080
 VOLUME /data
 WORKDIR /data
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["supervisord"]
