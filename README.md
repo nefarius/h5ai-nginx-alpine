@@ -1,5 +1,10 @@
 # h5ai-nginx-alpine
 
+![Docker Image Version](https://img.shields.io/docker/v/containinger/h5ai-nginx-alpine)
+![Docker Pulls](https://img.shields.io/docker/pulls/containinger/h5ai-nginx-alpine)
+
+Docker build of h5ai web directory project.
+
 Initially forked [from here](https://gitlab.com/Zaap59/h5ai-nginx-alpine/).
 
 ## Changes
