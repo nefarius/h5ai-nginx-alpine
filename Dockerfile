@@ -18,7 +18,6 @@ RUN npm install && \
 # build final image
 FROM trafex/php-nginx AS final
 LABEL maintainer="Benjamin Höglinger-Stelzer <nefarius@dhmx.at>"
-ARG H5AI_VERSION=0.32.0
 
 # elevate permissions during image modification
 USER root
