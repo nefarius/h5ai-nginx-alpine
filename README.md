@@ -1,4 +1,4 @@
-# h5ai-nginx-alpine
+# <img src="assets/NSS-128x128.png" align="left" />h5ai-nginx-alpine
 
 ![Docker Image Version](https://img.shields.io/docker/v/containinger/h5ai-nginx-alpine)
 ![Docker Pulls](https://img.shields.io/docker/pulls/containinger/h5ai-nginx-alpine)
