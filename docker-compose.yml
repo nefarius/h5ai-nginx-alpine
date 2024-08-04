@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  h5ai-nginx-alpine:
+    image: containinger/h5ai-nginx-alpine
+    container_name: h5ai-nginx-alpine
+    volumes:
+      - ./data/htdocs:/data:ro
+      - ./data/options.json:/usr/share/h5ai/_h5ai/private/conf/options.json
+      - ./data/logs:/var/log/nginx
+    restart: always
